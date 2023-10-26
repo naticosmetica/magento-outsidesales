@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="nati" translate="label" sortOrder="10">
+            <label>Nati</label>
+        </tab>
+        <section id="outsidesales" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Configurações Ideris</label>
+            <tab>nati</tab>
+            <resource>Nati_OutsideSales::config</resource>
+            <group id="general_settings" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Configurações Gerais</label>
+                <field id="ideris_url" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL do Endpoint</label>
+                </field>
+                <field id="ideris_access_key" translate="label" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Chave de Acesso</label>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

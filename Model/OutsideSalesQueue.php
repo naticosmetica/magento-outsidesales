@@ -267,7 +267,7 @@ class OutsideSalesQueue {
                     'gateway_value' => 0, //Valor que apenas a yamp irá trazer
                     'mkp_value' => $order->tarifaVenda,
                     'picking_value' => number_format($order->valorTotalComFrete * .01, 2, '.', ''), // Calcular (1% do valor total)
-                    'tax_value' => 0, // Aguardar calculo do Daniel
+                    'tax_value' => number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
                 ]);
 
                 //Salva os items do pedido

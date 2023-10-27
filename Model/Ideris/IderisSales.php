@@ -28,7 +28,8 @@ class IderisSales {
                 foreach($list->result as $sale) {
                     $sales[] = (object) [
                         'provider' => 'ideris',
-                        'provider_id' => $sale->id
+                        'provider_id' => $sale->id,
+                        'status' => $sale->status
                     ];
                 }
 

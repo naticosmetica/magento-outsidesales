@@ -81,22 +81,21 @@ class OutsideQueue extends Command
                 $period_init = date('Y-m-d H:i:s-03:00', strtotime($date_init));
                 $period_end = date('Y-m-d H:i:s-03:00', strtotime($date_end));
 
-                $output->writeln("<info>Inicio: ". $period_init ."</info>");
-                $output->writeln("<info>Fim: ". $period_end ."</info>");
-                exit;
-
+                $output->writeln("<info>Iniciando update - ". $period_init ." até ". $period_end ."</info>");
                 $this->_queue->updateList($period_init, $period_end);
                 $output->writeln("<info>Lista atualizada com sucesso.</info>");
             }
 
             // Executa a função validate
             if ($input->getOption('validate') || $input->getOption('all') || !$input->getOptions()) {
+                $output->writeln("<info>Iniciando validação:</info>");
                 $this->_queue->validateList();
                 $output->writeln("<info>Lista validada com sucesso.</info>");
             }
 
             // Executa a função execute
             if ($input->getOption('execute') || $input->getOption('all') || !$input->getOptions()) {
+                $output->writeln("<info>Iniciando execução da fila:</info>");
                 $this->_queue->executeList();
                 $output->writeln("<info>Lista executada com sucesso.</info>");
             }
@@ -104,6 +103,7 @@ class OutsideQueue extends Command
             // Executa a função revalidate
             if ($input->getOption('revalidate')) {
                 $ids = ($input->getOption('revalidate') == 'all') ? null : $input->getOption('revalidate');
+                $output->writeln("<info>Iniciando reexecução:</info>");
                 $this->_queue->revalidateList($ids);
                 $output->writeln("<info>Lista revalidada com sucesso.</info>");
             }

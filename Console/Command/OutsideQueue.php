@@ -53,6 +53,12 @@ class OutsideQueue extends Command
                 'Executa função que reexecuta a lista que houve erro'
             )
             ->addOption(
+                'change-status',
+                null,
+                InputOption::VALUE_NONE,
+                'Executa função que atualiza os status das listas já cadastradas'
+            )
+            ->addOption(
                 'date-init',
                 null,
                 InputOption::VALUE_REQUIRED,
@@ -106,6 +112,22 @@ class OutsideQueue extends Command
                 $output->writeln("<info>Iniciando reexecução:</info>");
                 $this->_queue->revalidateList($ids);
                 $output->writeln("<info>Lista revalidada com sucesso.</info>");
+            }
+
+            // Executa a função change-status
+            if ($input->getOption('change-status') || $input->getOption('all') || !$input->getOptions()) {
+
+                // Pega as datas informadas no console
+                $date_init = $input->getOption('date-init') ?? 'now - 24hours';
+                $date_end = $input->getOption('date-end') ?? 'now';
+
+                // Define o periodo de verificacao, porém, podemos atualizar para que se informe o período no console
+                $period_init = date('Y-m-d H:i:s-03:00', strtotime($date_init));
+                $period_end = date('Y-m-d H:i:s-03:00', strtotime($date_end));
+
+                $output->writeln("<info>Iniciando atualizações - ". $period_init ." até ". $period_end ."</info>");
+                $this->_queue->changeStatusList($period_init, $period_end);
+                $output->writeln("<info>Lista atualizada com sucesso.</info>");
             }
 
         } catch (\Exception $e) {

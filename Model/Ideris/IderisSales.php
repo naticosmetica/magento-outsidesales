@@ -13,7 +13,7 @@ class IderisSales {
         $this->_ideris = $ideris;
     }
 
-    public function getList($period_init, $period_end)
+    public function getList($period_init, $period_end, $periodType = '')
     {
         $sales = [];
         $offset = 0;
@@ -22,7 +22,7 @@ class IderisSales {
         //faz um loop para pegar todos os resultados e paginas
         while($loop === true) {
             //Adiciona os resultados no final do array, acumulando um unico array com todos os resultados
-            $list = $this->_ideris->sales($period_init, $period_end, $offset);
+            $list = $this->_ideris->sales($period_init, $period_end, $offset, 50, $periodType);
             if(!empty($list->result)) {
                 
                 foreach($list->result as $sale) {

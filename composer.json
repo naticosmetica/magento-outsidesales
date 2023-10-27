@@ -20,13 +20,5 @@
         "psr-4": {
             "Nati\\OutsideSales\\": ""
         }
-    },
-    "extra": {
-        "map": [
-            [
-                "*",
-                "Nati/OutsideSales/"
-            ]
-        ]
     }
 }

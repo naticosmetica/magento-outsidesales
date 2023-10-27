@@ -69,6 +69,12 @@ class OutsideSalesQueue {
 
             //Faz o tratamento dos dados e insere na tabela nati_marketplace_queue para serem executados
             foreach($sales as $sale) {
+
+                //Nao contabiliza caso o primeiro status seja cancelado
+                if($sale->status == 'Pagamento cancelado') {
+                    continue;
+                }
+
                 //Verifica se o pedido já existe na tabela
                 $result = $this->_connection->fetchAll("SELECT * FROM nati_marketplace_queue WHERE provider = '". $sale->provider ."' AND provider_id = '". $sale->provider_id ."' LIMIT 1");
                 
@@ -125,9 +131,17 @@ class OutsideSalesQueue {
         // Se houver registros, faz um loop para pegar o ideris_id de cada um e fazer a validação
         foreach($result as $item) {
 
+            // Verifica se realmente precisa processar (pois podem haver mais de um processo em execucao)
+            $result = $this->_connection->fetchAll("SELECT * FROM " . $tableMkpQueue . " WHERE id = ". $item['id'] ." AND status != 'pending' LIMIT 1");
+            if(count($result) == 0) {
+                continue;
+            }
+
             // Atualiza o status para validando
             $this->_connection->query("UPDATE " . $tableMkpQueue . " SET status = 'validating' WHERE id = ". $item['id'] ." LIMIT 1");
 
+            // QUANDO FOR ADICIONAR O YAMP OU DEMAIS MKP CRIAR UMA FUNCAO QUE TRANSFORME O RETORNO DE CADA ORDER EM UM OBJETO PADRAO PARA QUE POSSA SER VALIDADO ABAIXO E NOS DEMAIS CAMPOS DE FORMA IGUAL
+            // ASSIM PODEMOS SEPARAR A CHAMADA POR PROVIDER ID, MAS SEM A NECESSIDADE DE CRIAR UM IF PARA CADA PROVIDER
             $order = $this->_ideris->getOrder($item['provider_id']);
 
             $error = [];
@@ -173,13 +187,13 @@ class OutsideSalesQueue {
                     }
 
                     //Verifica se possui o ID da entrafa
-                    if(empty($order->numeroRastreio)) {
-                        $error[] = 'Não possui número de rastreio definido';
-                    }
+                    // if(empty($order->numeroRastreio)) {
+                    //     $error[] = 'Não possui número de rastreio definido';
+                    // }
                     
                     //Verifica se possui forma de pagamento
-                    if(empty($order->Pagamento->formaPagamento)) {
-                        $error[] = 'Não possui código de rastreio definido';
+                    if(empty($order->Pagamento[0]->formaPagamento)) {
+                        $error[] = 'Não possui forma de pagamento definida';
                     }
                 
                     //Varre os items para verificar se encontra o SKU e categoria cadastrada
@@ -188,6 +202,8 @@ class OutsideSalesQueue {
                             $error[] = 'Produto '. $orderItem->tituloProdutoItem .', não possui SKU definido';
                             continue;
                         }
+
+                        $product = $this->_marketplaceItem->getProductBySku($orderItem->skuProdutoItem);
 
                         if(empty($product)) {
                             $error[] = 'SKU '. $orderItem->skuProdutoItem .' não encontrado no magento';
@@ -198,7 +214,7 @@ class OutsideSalesQueue {
                             $error[] = 'SKU '. $orderItem->skuProdutoItem .' não possui valor de custo definido';
                         }
 
-                        $categoryIds = $this->_marketplaceItem->category();
+                        $categoryIds = $this->_marketplaceItem->category($orderItem->skuProdutoItem);
                         if(empty($categoryIds)) {
                             $error[] = 'SKU '. $orderItem->skuProdutoItem .' não possui categoria deifnida';
                         }
@@ -273,7 +289,7 @@ class OutsideSalesQueue {
                 //Salva os items do pedido
                 $gatewayValue = 0;
                 foreach($order->Item as $orderItem) {
-                    $product = $this->_marketplaceItem->getProduct($orderItem->skuProdutoItem);
+                    $product = $this->_marketplaceItem->getProductBySku($orderItem->skuProdutoItem);
 
                     $this->_marketplaceItem->create([
                         'sale_id' => $saleId,
@@ -306,13 +322,6 @@ class OutsideSalesQueue {
                 $this->_connection->query("UPDATE " . $tableMkpQueue . " SET status = 'error', message = '". $e->getMessage() ."' WHERE id = ". $item['id'] ." LIMIT 1");
             }
         }
-                
-        /*
-        - Fazer uma funcao no console, para que adicione na fila novamente todos os itens que estao com erro e reprocesse
-            - Fazer a opcao também de passar o parametro do ID do item para que seja reprocessado apenas um item
-        - Ver se consigo retornar a exibicao de cada item do pedido sendo cadastrado no console
-        - Salvar tudo e subir como versao 1.0.0 do módulo e testar em homologacao
-        */
     }
 
     public function revalidateList($id = null)
@@ -344,5 +353,38 @@ class OutsideSalesQueue {
         }
 
         $this->validateList($ids);
+    }
+
+    public function changeStatusList($period_init, $period_end)
+    {
+        // Inicia dados na tabela nati_mktplace_sales
+        $tableSales = $this->_resource->getTableName('nati_mktplace_sales');
+
+        // Retorna a array com as vendas
+        $sales = [];
+        $sales_ideris = $this->_ideris->getList($period_init, $period_end, 'Atualizacao');
+        // $sales_yamp = $this->_yamp->getList($period_init, $period_end);
+        $sales = array_merge($sales, $sales_ideris); //, $sales_yamp, $sales_b2b, .... adicoinar outras vendas quando houver
+
+        // Consulta na tabela "nati_mktplace_sales" se existe o provider_id cadastrado e atualiza o status
+        foreach($sales as $sale) {
+            $result = $this->_connection->fetchAll("SELECT * FROM " . $tableSales . " WHERE provider_type = '". $sale->provider ."' AND provider_sale_id = '". $sale->provider_id ."' LIMIT 1");
+
+            if(count($result) > 0) {
+                $this->_connection->query("UPDATE " . $tableSales . " SET order_status = '". $sale->status ."' WHERE id = ". $result[0]['id'] ." LIMIT 1");
+
+                //Verifica se no result possui o valor de shipping_id e atualiza caso nao tenha
+                if(empty($result[0]['shipping_id'])) {
+
+                    //Consulta detalhes do pedido no Ideris
+                    if($sale->provider == 'ideris') {
+                        $order = $this->_ideris->getOrder($sale->provider_id);
+                        if(!empty($order) && !empty($order->numeroRastreio)) {
+                            $this->_connection->query("UPDATE " . $tableSales . " SET shipping_id = '". $order->numeroRastreio ."' WHERE id = ". $result[0]['id'] ." LIMIT 1");
+                        }
+                    }
+                }
+            }
+        }
     }
 }

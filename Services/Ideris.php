@@ -58,7 +58,7 @@ class Ideris {
         return trim(str_replace('"','',$this->_httpClient->getBody()));
     }
 
-    public function sales($period_init, $period_end, $offset = 0, $limit = 50)
+    public function sales($period_init, $period_end, $offset = 0, $limit = 50, $periodType = '')
     {
         $this->_httpClient->setHeaders([
             'Content-Type' => 'application/json',
@@ -66,7 +66,7 @@ class Ideris {
             'Authorization' => $this->token()
         ]);
 
-        $this->_httpClient->get($this->getIderisUrl() .'/ListaPedido?dataInicialAtualizacao='. urlencode($period_init) .'&dataFinalAtualizacao='. urlencode($period_end) .'&offset='. $offset .'&limit='. $limit);
+        $this->_httpClient->get($this->getIderisUrl() .'/ListaPedido?dataInicial'.$periodType.'='. urlencode($period_init) .'&dataFinal'.$periodType.'='. urlencode($period_end) .'&offset='. $offset .'&limit='. $limit);
         
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {

@@ -132,8 +132,8 @@ class OutsideSalesQueue {
         foreach($result as $item) {
 
             // Verifica se realmente precisa processar (pois podem haver mais de um processo em execucao)
-            $result = $this->_connection->fetchAll("SELECT * FROM " . $tableMkpQueue . " WHERE id = ". $item['id'] ." AND status != 'pending' LIMIT 1");
-            if(count($result) == 0) {
+            $result = $this->_connection->fetchAll("SELECT * FROM " . $tableMkpQueue . " WHERE id = ". $item['id'] ." AND status NOT IN ('pending','error') LIMIT 1");
+            if(count($result) > 0) {
                 continue;
             }
 

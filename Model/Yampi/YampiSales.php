@@ -78,9 +78,9 @@ class YampiSales {
 
                     'codigo' => $data->id,
                     'status' => $data->status->data->name,
-                    'data' => str_replace(' ','T'substr($data->created_at->date,0,19)).'-03:00',
+                    'data' => str_replace(' ','T',substr($data->created_at->date,0,19)).'-03:00',
                     'numeroRastreio' => $data->track_code, // REVER
-                    'dataEntregue' => (!empty($data->date_delivery->date)) ? str_replace(' ','T'substr($data->date_delivery->date,0,19)).'-03:00' : '0000-00-00T00:00:00-03:00',
+                    'dataEntregue' => (!empty($data->date_delivery->date)) ? str_replace(' ','T',substr($data->date_delivery->date,0,19)).'-03:00' : '0000-00-00T00:00:00-03:00',
                     'tarifaEnvio' => $data->shipment_cost,
                     'freteComprador' => $data->value_shipment,
                     'valorTotalComFrete' => $data->value_total,

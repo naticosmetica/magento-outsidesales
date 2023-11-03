@@ -52,7 +52,7 @@ class Ideris {
 
         //Verifica se o token foi gerado com sucesso
         if($this->_httpClient->getStatus() != 200) {
-            throw new \Exception('Não foi possível gerar o token de acesso a API. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody() .' --- '. $this->getIderisUrl() .'/Login --- '. $jsonData);
+            throw new \Exception('Não foi possível gerar o token de acesso a API da Ideris. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody() .' --- '. $this->getIderisUrl() .'/Login --- '. $jsonData);
         }
 
         return trim(str_replace('"','',$this->_httpClient->getBody()));
@@ -70,7 +70,7 @@ class Ideris {
         
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {
-            throw new \Exception('Não foi possível consultar a API. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody());
+            throw new \Exception('Não foi possível consultar a API da Ideris. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody());
         }
 
         return json_decode($this->_httpClient->getBody());
@@ -88,7 +88,7 @@ class Ideris {
 
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {
-            throw new \Exception('Não foi possível consultar a API.');
+            throw new \Exception('Não foi possível consultar a API da Ideris.');
         }
 
         return json_decode($this->_httpClient->getBody());

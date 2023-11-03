@@ -4,6 +4,7 @@ namespace Nati\OutsideSales\Model;
 
 use Magento\Framework\App\ObjectManager;
 use Nati\OutsideSales\Model\Ideris\IderisSales;
+use Nati\OutsideSales\Model\Yampi\YampiSales;
 use Nati\OutsideSales\Model\Customer\Customer;
 use Nati\OutsideSales\Model\Marketplace\Marketplace;
 use Nati\OutsideSales\Model\Marketplace\Sales;
@@ -12,6 +13,7 @@ use Nati\OutsideSales\Model\Marketplace\Item;
 class OutsideSalesQueue {
 
     protected $_ideris;
+    protected $_yampi;
     protected $_customer;
     protected $_marketplace;
     protected $_marketplaceSales;
@@ -22,12 +24,14 @@ class OutsideSalesQueue {
 
     public function __construct(
         IderisSales $ideris, 
+        YampiSales $yampi, 
         Customer $customer,
         Marketplace $marketplace,
         Sales $marketplaceSales,
         Item $marketplaceItem
     ) {
         $this->_ideris = $ideris;
+        $this->_yampi = $yampi;
         $this->_customer = $customer;
         $this->_marketplace = $marketplace;
         $this->_marketplaceSales = $marketplaceSales;
@@ -61,8 +65,8 @@ class OutsideSalesQueue {
             // Retorna a array com as vendas
             $sales = [];
             $sales_ideris = $this->_ideris->getList($period_init, $period_end);
-            // $sales_yamp = $this->_yamp->getList($period_init, $period_end);
-            $sales = array_merge($sales, $sales_ideris); //, $sales_yamp, $sales_b2b, .... adicoinar outras vendas quando houver
+            $sales_yampi = $this->_yampi->getList($period_init, $period_end);
+            $sales = array_merge($sales, $sales_ideris, $sales_yampi); //, $sales_yampi, $sales_b2b, .... adicoinar outras vendas quando houver
 
             //Atualiza a quantidade de pedidos encontrados
             $this->_connection->query("UPDATE " . $tableName . " SET qty_orders = '". count($sales) ."' WHERE id = ". $marketplaceLogId ." LIMIT 1");
@@ -142,7 +146,14 @@ class OutsideSalesQueue {
 
             // QUANDO FOR ADICIONAR O YAMP OU DEMAIS MKP CRIAR UMA FUNCAO QUE TRANSFORME O RETORNO DE CADA ORDER EM UM OBJETO PADRAO PARA QUE POSSA SER VALIDADO ABAIXO E NOS DEMAIS CAMPOS DE FORMA IGUAL
             // ASSIM PODEMOS SEPARAR A CHAMADA POR PROVIDER ID, MAS SEM A NECESSIDADE DE CRIAR UM IF PARA CADA PROVIDER
-            $order = $this->_ideris->getOrder($item['provider_id']);
+
+            $order = null;
+            if($item['provider'] == 'ideris') {
+                $order = $this->_ideris->getOrder($item['provider_id']);
+            }
+            elseif($item['provider'] == 'yampi') {
+                $order = $this->_yampi->getOrder($item['provider_id']);
+            }
 
             $error = [];
             if(!empty($order)) {
@@ -260,7 +271,13 @@ class OutsideSalesQueue {
                 // Atualiza o status para executando
                 $this->_connection->query("UPDATE " . $tableMkpQueue . " SET status = 'executing' WHERE id = ". $item['id'] ." LIMIT 1");
 
-                $order = $this->_ideris->getOrder($item['provider_id']);
+                $order = null;
+                if($item['provider'] == 'ideris') {
+                    $order = $this->_ideris->getOrder($item['provider_id']);
+                }
+                elseif($item['provider'] == 'yampi') {
+                    $order = $this->_yampi->getOrder($item['provider_id']);
+                }
 
                 $customerId = $this->_customer->getIdCustomerForDocument($order->compradorDocumento);
 
@@ -280,7 +297,7 @@ class OutsideSalesQueue {
                     'shipping_value' => number_format($order->tarifaEnvio - $order->freteComprador, 2, '.', ''),
                     'payment_type' => $order->Pagamento[0]->formaPagamento,
                     'total_value' => $order->valorTotalComFrete,
-                    'gateway_value' => 0, //Valor que apenas a yamp irá trazer
+                    'gateway_value' => $order->tarifaGateway ?? 0, //Valor que apenas a yampi irá trazer
                     'mkp_value' => $order->tarifaVenda,
                     'picking_value' => number_format($order->valorTotalComFrete * .01, 2, '.', ''), // Calcular (1% do valor total)
                     'tax_value' => number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
@@ -363,8 +380,8 @@ class OutsideSalesQueue {
         // Retorna a array com as vendas
         $sales = [];
         $sales_ideris = $this->_ideris->getList($period_init, $period_end, 'Atualizacao');
-        // $sales_yamp = $this->_yamp->getList($period_init, $period_end);
-        $sales = array_merge($sales, $sales_ideris); //, $sales_yamp, $sales_b2b, .... adicoinar outras vendas quando houver
+        $sales_yampi = $this->_yampi->getList($period_init, $period_end);
+        $sales = array_merge($sales, $sales_ideris, $sales_yampi); //, $sales_yampi, $sales_b2b, .... adicoinar outras vendas quando houver
 
         // Consulta na tabela "nati_mktplace_sales" se existe o provider_id cadastrado e atualiza o status
         foreach($sales as $sale) {

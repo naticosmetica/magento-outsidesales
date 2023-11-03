@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Nati_OutsideSales::queue" title="Nati" module="Nati_OutsideSales" sortOrder="100" resource="Nati_OutsideSales::queue"/>
+        <add id="Nati_OutsideSales::queue_management" title="Pedidos online" module="Nati_OutsideSales" sortOrder="10" action="nati_outsidesales/queue" resource="Nati_OutsideSales::queue_management" parent="Nati_OutsideSales::queue"/>
+    </menu>
+</config>

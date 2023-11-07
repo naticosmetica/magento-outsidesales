@@ -1,17 +1,16 @@
 <?php
+namespace Nati\OutsideSales\Controller\Adminhtml\Order;
 
-namespace Nati\OutsideSales\Controller\Adminhtml\Queue;
-
-use Magento\Backend\App\Action;
-use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\PageFactory;
-
-class Index extends Action
+class Error extends \Magento\Backend\App\Action
 {
+    const ADMIN_RESOURCE = 'Nati_OutsideSales::error_order';
+
     protected $resultPageFactory;
 
-    public function __construct(Context $context, PageFactory $resultPageFactory)
-    {
+    public function __construct(
+        \Magento\Backend\App\Action\Context $context,
+        \Magento\Framework\View\Result\PageFactory $resultPageFactory
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
     }
@@ -20,6 +19,7 @@ class Index extends Action
     {
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__('Lista de pedidos com erro'));
+        
         return $resultPage;
     }
 }

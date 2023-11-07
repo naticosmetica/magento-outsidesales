@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Access Control List (acl) definitions
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Nati_OutsideSales::error_orders" title="Error Orders" sortOrder="100">
+                    <!-- sortOrder é a ordem em que ele aparece na lista de permissões no admin -->
+                    <!-- Defina recursos adicionais como filhos se necessário -->
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

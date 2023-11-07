@@ -72,7 +72,7 @@ class YampiSales {
                     'enderecoEntregaEstado' => $data->shipping_address->data->state,
 
                     // Por tudo como Yampi
-                    'idContaMarketplace' => 1,
+                    'idContaMarketplace' => 9000000000,
                     'marketplace' => 'Yampi',
                     'nomeContaMarketplace' => 'LOJA.YAMPI',
 

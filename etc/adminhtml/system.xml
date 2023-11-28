@@ -35,5 +35,19 @@
                 </field>
             </group>
         </section>
+        <section id="outsidesales_freterapido" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Configurações Frete Rápido</label>
+            <tab>nati</tab>
+            <resource>Nati_OutsideSales::config</resource>
+            <group id="general_settings_freterapido" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Configurações Gerais</label>
+                <field id="freterapido_url" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL do Endpoint</label>
+                </field>
+                <field id="freterapido_access_key" translate="label" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Chave de Acesso</label>
+                </field>
+            </group>
+        </section>
     </system>
 </config>

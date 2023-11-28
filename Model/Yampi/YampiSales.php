@@ -3,14 +3,17 @@
 namespace Nati\OutsideSales\Model\Yampi;
 
 use Nati\OutsideSales\Services\Yampi;
+use Nati\OutsideSales\Services\FreteRapido;
 
 class YampiSales {
 
     protected $_yampi;
+    protected $_freteRapido;
 
-    public function __construct(Yampi $yampi)
+    public function __construct(Yampi $yampi, FreteRapido $freteRapido)
     {
         $this->_yampi = $yampi;
+        $this->_freteRapido = $freteRapido;
     }
 
     public function getList($period_init, $period_end, $periodType = '')
@@ -58,6 +61,22 @@ class YampiSales {
 
                 $data = $order->data;
 
+                //Consulta frete rapido se houver ID de nota
+                $shipping = (object) [
+                    'id' => null, 
+                    'cost' => null
+                ];
+                if(!empty($data->merchant_id)) {
+                    try {
+                        $freteRapido = $this->_freteRapido->getByOrder($data->merchant_id);
+                        $shipping->id = $freteRapido->id_frete ?? null;
+                        $shipping->cost = number_format($freteRapido->transportadora->valor_cotado, 2, '.', '');
+                    }
+                    catch(\Exception $e) {
+                        throw new \Exception(json_encode($e->getMessage()));
+                    }
+                }
+
                 //Redireciona para valores semelhantes aos utilizados no Ideris
                 $replace = (object) [
                     'id' => $data->id, 
@@ -79,9 +98,9 @@ class YampiSales {
                     'codigo' => $data->id,
                     'status' => $data->status->data->name,
                     'data' => str_replace(' ','T',substr($data->created_at->date,0,19)).'-03:00',
-                    'numeroRastreio' => $data->track_code, // REVER
+                    'numeroRastreio' => $shipping->id,
                     'dataEntregue' => (!empty($data->date_delivery->date)) ? str_replace(' ','T',substr($data->date_delivery->date,0,19)).'-03:00' : '0000-00-00T00:00:00-03:00',
-                    'tarifaEnvio' => $data->shipment_cost,
+                    'tarifaEnvio' => $shipping->cost,
                     'freteComprador' => $data->value_shipment,
                     'valorTotalComFrete' => $data->value_total,
                     'tarifaVenda' => number_format($data->value_total * .015, 2, '.', ''), //1.5% média passada pelo Daniel

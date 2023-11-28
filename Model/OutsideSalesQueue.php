@@ -400,6 +400,13 @@ class OutsideSalesQueue {
                             $this->_connection->query("UPDATE " . $tableSales . " SET shipping_id = '". $order->numeroRastreio ."' WHERE id = ". $result[0]['id'] ." LIMIT 1");
                         }
                     }
+                    //Consulta detalhes do pedido no frete rápido - Yampi
+                    elseif($sale->provider == 'yampi') {
+                        $order = $this->_yampi->getOrder($sale->provider_id);
+                        if(!empty($order) && !empty($order->numeroRastreio)) {
+                            $this->_connection->query("UPDATE " . $tableSales . " SET shipping_id = '". $order->numeroRastreio ."', shipping_value = '". $order->tarifaEnvio ."' WHERE id = ". $result[0]['id'] ." LIMIT 1");
+                        }
+                    }
                 }
             }
         }

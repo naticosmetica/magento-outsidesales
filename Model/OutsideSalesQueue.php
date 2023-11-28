@@ -272,11 +272,14 @@ class OutsideSalesQueue {
                 $this->_connection->query("UPDATE " . $tableMkpQueue . " SET status = 'executing' WHERE id = ". $item['id'] ." LIMIT 1");
 
                 $order = null;
+                $shipping_cost = 0;
                 if($item['provider'] == 'ideris') {
                     $order = $this->_ideris->getOrder($item['provider_id']);
+                    $shipping_cost = number_format($order->tarifaEnvio - $order->freteComprador, 2, '.', '');
                 }
                 elseif($item['provider'] == 'yampi') {
                     $order = $this->_yampi->getOrder($item['provider_id']);
+                    $shipping_cost = $order->tarifaEnvio;
                 }
 
                 $customerId = $this->_customer->getIdCustomerForDocument($order->compradorDocumento);
@@ -294,7 +297,7 @@ class OutsideSalesQueue {
                     'provider_sale_id' => $order->id,
                     'shipping_id' => $order->numeroRastreio,
                     'shipping_date' => $order->dataEntregue,
-                    'shipping_value' => number_format($order->tarifaEnvio - $order->freteComprador, 2, '.', ''),
+                    'shipping_value' => $shipping_cost,
                     'payment_type' => $order->Pagamento[0]->formaPagamento,
                     'total_value' => $order->valorTotalComFrete,
                     'gateway_value' => $order->tarifaGateway ?? 0, //Valor que apenas a yampi irá trazer

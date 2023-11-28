@@ -66,9 +66,9 @@ class YampiSales {
                     'id' => null, 
                     'cost' => null
                 ];
-                if(!empty($data->merchant_id)) {
+                if(!empty($data->services->data[0]->bling->external_id)) {
                     try {
-                        $freteRapido = $this->_freteRapido->getByOrder($data->merchant_id);
+                        $freteRapido = $this->_freteRapido->getByOrder($data->services->data[0]->bling->external_id);
                         $shipping->id = $freteRapido->id_frete ?? null;
                         $shipping->cost = number_format($freteRapido->transportadora->valor_cotado, 2, '.', '');
                     }

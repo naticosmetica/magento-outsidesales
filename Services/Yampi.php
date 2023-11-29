@@ -86,7 +86,7 @@ class Yampi {
             'User-Secret-Key' => $this->getYampiAccessKey()
         ]);
 
-        $this->_httpClient->get($this->getYampiUrl() .'/orders/'. $order_id .'?include=items,customer,marketplace,status,shipping_address,transactions,seller,labels');
+        $this->_httpClient->get($this->getYampiUrl() .'/orders/'. $order_id .'?include=items,customer,marketplace,status,shipping_address,transactions,seller,labels,services');
 
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {

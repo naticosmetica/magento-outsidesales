@@ -120,7 +120,7 @@ class OutsideSalesQueue {
         $tableMkps = $this->_resource->getTableName('nati_mktplaces');
 
         // Verifica se foi passado algum ID para validar
-        $where = "WHERE status = 'pending'";
+        $where = "WHERE status IN ('pending', 'validating')";
         if(!empty($ids) && count($ids) > 0) {
             $where = "WHERE id IN (". implode(',', $ids) .") AND status = 'error'";
         }
@@ -136,7 +136,7 @@ class OutsideSalesQueue {
         foreach($result as $item) {
 
             // Verifica se realmente precisa processar (pois podem haver mais de um processo em execucao)
-            $result = $this->_connection->fetchAll("SELECT * FROM " . $tableMkpQueue . " WHERE id = ". $item['id'] ." AND status NOT IN ('pending','error') LIMIT 1");
+            $result = $this->_connection->fetchAll("SELECT * FROM " . $tableMkpQueue . " WHERE id = ". $item['id'] ." AND status NOT IN ('pending','validating','error') LIMIT 1");
             if(count($result) > 0) {
                 continue;
             }

@@ -73,7 +73,7 @@ class YampiSales {
                         $shipping->cost = number_format($freteRapido->transportadora->valor_cotado, 2, '.', '');
                     }
                     catch(\Exception $e) {
-                        throw new \Exception(json_encode($e->getMessage()));
+                        // throw new \Exception(json_encode($e->getMessage()));
                     }
                 }
 

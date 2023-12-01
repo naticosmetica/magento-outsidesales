@@ -82,71 +82,111 @@ class OutsideQueue extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output, $executeCron = false)
     {
+        // Pega as datas informadas no console
+        try {
+            $date_init = $input->getOption('date-init');
+        }
+        catch (\Exception $e) {
+            $date_init = 'now - 24hours';
+        }
+
+        try {
+            $date_end = $input->getOption('date-end');
+        }
+        catch (\Exception $e) {
+            $date_end = 'now';
+        }
+
         try {
 
             // Executa a função revalidate (primeira funcao, pois executa primeiro a fila parada, pra n gerar duplicidade na validacao da fila gerada após a execucao)
             if ($executeCron || $input->getOption('revalidate')) {
-                $ids = ($input->getOption('revalidate') == 'all') ? null : $input->getOption('revalidate');
+                $ids = ($executeCron || $input->getOption('revalidate') == 'all') ? null : $input->getOption('revalidate');
                 $output->writeln("<info>Iniciando reexecução:</info>");
-                $this->_queue->revalidateList($ids);
-                $output->writeln("<info>Lista revalidada com sucesso.</info>");
+
+                try {
+                    $this->_queue->revalidateList($ids);
+                    $output->writeln("<info>Lista reexecutada com sucesso.</info>");
+                } catch (\Exception $e) {
+                    $output->writeln("<error>{$e->getMessage()}</error>");
+                }
             }
 
             // Executa a função update
             if ($executeCron || $input->getOption('update') || $input->getOption('all') || !$input->getOptions()) {
-
-                // Pega as datas informadas no console
-                $date_init = $input->getOption('date-init') ?? 'now - 24hours';
-                $date_end = $input->getOption('date-end') ?? 'now';
 
                 // Define o periodo de atualização, porém, podemos atualizar para que se informe o período no console
                 $period_init = date('Y-m-d H:i:s-03:00', strtotime($date_init));
                 $period_end = date('Y-m-d H:i:s-03:00', strtotime($date_end));
 
                 $output->writeln("<info>Iniciando update - ". $period_init ." até ". $period_end ."</info>");
-                $this->_queue->updateList($period_init, $period_end);
-                $output->writeln("<info>Lista atualizada com sucesso.</info>");
+
+                try {
+                    $this->_queue->updateList($period_init, $period_end);
+                    $output->writeln("<info>Lista atualizada com sucesso.</info>");
+                } catch (\Exception $e) {
+                    $output->writeln("<error>{$e->getMessage()}</error>");
+                }
             }
 
             // Executa a função validate
             if ($executeCron || $input->getOption('validate') || $input->getOption('all') || !$input->getOptions()) {
                 $output->writeln("<info>Iniciando validação:</info>");
-                $this->_queue->validateList();
-                $output->writeln("<info>Lista validada com sucesso.</info>");
+
+                try {
+                    $this->_queue->validateList();
+                    $output->writeln("<info>Lista validada com sucesso.</info>");
+                } catch (\Exception $e) {
+                    $output->writeln("<error>{$e->getMessage()}</error>");
+                }
             }
 
             // Executa a função execute
             if ($executeCron || $input->getOption('execute') || $input->getOption('all') || !$input->getOptions()) {
                 $output->writeln("<info>Iniciando execução da fila:</info>");
-                $this->_queue->executeList();
-                $output->writeln("<info>Lista executada com sucesso.</info>");
+
+                try {
+                    $this->_queue->executeList();
+                    $output->writeln("<info>Lista executada com sucesso.</info>");
+                } catch (\Exception $e) {
+                    $output->writeln("<error>{$e->getMessage()}</error>");
+                }
             }
 
             // Executa a função change-status
             if ($executeCron || $input->getOption('change-status') || $input->getOption('all') || !$input->getOptions()) {
-
-                // Pega as datas informadas no console
-                $date_init = $input->getOption('date-init') ?? 'now - 24hours';
-                $date_end = $input->getOption('date-end') ?? 'now';
 
                 // Define o periodo de verificacao, porém, podemos atualizar para que se informe o período no console
                 $period_init = date('Y-m-d H:i:s-03:00', strtotime($date_init));
                 $period_end = date('Y-m-d H:i:s-03:00', strtotime($date_end));
 
                 $output->writeln("<info>Iniciando atualizações - ". $period_init ." até ". $period_end ."</info>");
-                $this->_queue->changeStatusList($period_init, $period_end);
-                $output->writeln("<info>Lista atualizada com sucesso.</info>");
+                try {
+                    $this->_queue->changeStatusList($period_init, $period_end);
+                    $output->writeln("<info>Lista atualizada com sucesso.</info>");
+                } catch (\Exception $e) {
+                    $output->writeln("<error>{$e->getMessage()}</error>");
+                }
             }
 
             if ($executeCron || $input->getOption('webhook') || $input->getOption('all') || !$input->getOptions()) {
-                $ids = ($input->getOption('webhook') == 'all') ? null : $input->getOption('webhook');
+                $ids = ($executeCron || $input->getOption('webhook') == 'all') ? null : $input->getOption('webhook');
                 $output->writeln("<info>Iniciando leitura da fila de webhooks:</info>");
-                $this->_queue->readWebhookQueue($ids);
-                $output->writeln("<info>Lista de webhooks lida com sucesso.</info>");
+
+                try {
+                    $this->_queue->readWebhookQueue($ids);
+                    $output->writeln("<info>Lista de webhooks lida com sucesso.</info>");
+                } catch (\Exception $e) {
+                    $output->writeln("<error>{$e->getMessage()}</error>");
+                }
             }
+
+            echo 'FOI';
 
         } catch (\Exception $e) {
             $output->writeln("<error>{$e->getMessage()}</error>");
+
+            echo 'ERROR - '.$e->getMessage();exit;
         }
     }
 

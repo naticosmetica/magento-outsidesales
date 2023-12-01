@@ -151,9 +151,7 @@ class OutsideQueue extends Command
     }
 
     // Funcao para executar a funcao externamente, ex. pelo CRON ou funcoes externas (nao pelo console)
-    public function executeCron($params = [
-        'all' => true,
-    ]) {
+    public function executeCron() {
         $input = new ArrayInput([]); //Executa todas as funcoes
         $output = new ConsoleOutput(); // ou new NullOutput();
 

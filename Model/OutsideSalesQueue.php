@@ -469,7 +469,7 @@ class OutsideSalesQueue {
 
                                 $order_status = $this->_yampi->queryStatus($shipping->codigo, 'frete_rapido');
                                 if(!empty($order_status)) {
-                                    $this->_yampi->updateOrder($order_status->data->id, [
+                                    $this->_yampi->updateOrder($order_yampi->id, [
                                         'status_id' => $order_status,
                                         'track_code' => $shipping->id_frete,
                                         'track_url' => 'https://ondeestameupedido.com.br/'. $shipping->id_frete
@@ -477,7 +477,7 @@ class OutsideSalesQueue {
                                 }
 
                                 // Atualiza como concluido e pula para o próximo
-                                $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'concluded' WHERE id = ". $item['id'] ." LIMIT 1");
+                                $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'concluded', message='' WHERE id = ". $item['id'] ." LIMIT 1");
                                 continue;
                             }
                         }

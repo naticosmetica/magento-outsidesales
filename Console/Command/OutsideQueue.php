@@ -61,7 +61,7 @@ class OutsideQueue extends Command
             ->addOption(
                 'webhook',
                 null,
-                InputOption::VALUE_NONE,
+                InputOption::VALUE_REQUIRED,
                 'Executa função que le a fila de webhooks'
             )
             ->addOption(
@@ -137,8 +137,9 @@ class OutsideQueue extends Command
             }
 
             if($input->getOption('webhook') || $input->getOption('all') || !$input->getOptions()) {
+                $ids = ($input->getOption('webhook') == 'all') ? null : $input->getOption('webhook');
                 $output->writeln("<info>Iniciando leitura da fila de webhooks:</info>");
-                $this->_queue->readWebhookQueue();
+                $this->_queue->readWebhookQueue($ids);
                 $output->writeln("<info>Lista de webhooks lida com sucesso.</info>");
             }
 

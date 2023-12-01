@@ -419,12 +419,17 @@ class OutsideSalesQueue {
         }
     }
 
-    public function readWebhookQueue()
+    public function readWebhookQueue($id = null)
     {
         // Consulta a tabela nati_webhook_queue com status generated e executa novamente
         $tableWebhookQueue = $this->_resource->getTableName('nati_webhook_queue');
 
-        $result = $this->_connection->fetchAll("SELECT * FROM " . $tableWebhookQueue . " WHERE status IN ('processing', 'generated')");
+        $where = "WHERE status IN ('processing', 'generated')";
+        if(!empty($id)) {
+            $where = "WHERE id IN (". $id .")";
+        }
+
+        $result = $this->_connection->fetchAll("SELECT * FROM " . $tableWebhookQueue . " ". $where);
 
         // Verifica se existem registros para serem validados
         if(count($result) == 0) {

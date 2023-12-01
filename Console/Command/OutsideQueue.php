@@ -80,12 +80,20 @@ class OutsideQueue extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output, $executeCron = false)
     {
         try {
 
+            // Executa a função revalidate (primeira funcao, pois executa primeiro a fila parada, pra n gerar duplicidade na validacao da fila gerada após a execucao)
+            if ($executeCron || $input->getOption('revalidate')) {
+                $ids = ($input->getOption('revalidate') == 'all') ? null : $input->getOption('revalidate');
+                $output->writeln("<info>Iniciando reexecução:</info>");
+                $this->_queue->revalidateList($ids);
+                $output->writeln("<info>Lista revalidada com sucesso.</info>");
+            }
+
             // Executa a função update
-            if ($input->getOption('update') || $input->getOption('all') || !$input->getOptions()) {
+            if ($executeCron || $input->getOption('update') || $input->getOption('all') || !$input->getOptions()) {
 
                 // Pega as datas informadas no console
                 $date_init = $input->getOption('date-init') ?? 'now - 24hours';
@@ -101,29 +109,21 @@ class OutsideQueue extends Command
             }
 
             // Executa a função validate
-            if ($input->getOption('validate') || $input->getOption('all') || !$input->getOptions()) {
+            if ($executeCron || $input->getOption('validate') || $input->getOption('all') || !$input->getOptions()) {
                 $output->writeln("<info>Iniciando validação:</info>");
                 $this->_queue->validateList();
                 $output->writeln("<info>Lista validada com sucesso.</info>");
             }
 
             // Executa a função execute
-            if ($input->getOption('execute') || $input->getOption('all') || !$input->getOptions()) {
+            if ($executeCron || $input->getOption('execute') || $input->getOption('all') || !$input->getOptions()) {
                 $output->writeln("<info>Iniciando execução da fila:</info>");
                 $this->_queue->executeList();
                 $output->writeln("<info>Lista executada com sucesso.</info>");
             }
 
-            // Executa a função revalidate
-            if ($input->getOption('revalidate')) {
-                $ids = ($input->getOption('revalidate') == 'all') ? null : $input->getOption('revalidate');
-                $output->writeln("<info>Iniciando reexecução:</info>");
-                $this->_queue->revalidateList($ids);
-                $output->writeln("<info>Lista revalidada com sucesso.</info>");
-            }
-
             // Executa a função change-status
-            if ($input->getOption('change-status') || $input->getOption('all') || !$input->getOptions()) {
+            if ($executeCron || $input->getOption('change-status') || $input->getOption('all') || !$input->getOptions()) {
 
                 // Pega as datas informadas no console
                 $date_init = $input->getOption('date-init') ?? 'now - 24hours';
@@ -138,7 +138,7 @@ class OutsideQueue extends Command
                 $output->writeln("<info>Lista atualizada com sucesso.</info>");
             }
 
-            if($input->getOption('webhook') || $input->getOption('all') || !$input->getOptions()) {
+            if ($executeCron || $input->getOption('webhook') || $input->getOption('all') || !$input->getOptions()) {
                 $ids = ($input->getOption('webhook') == 'all') ? null : $input->getOption('webhook');
                 $output->writeln("<info>Iniciando leitura da fila de webhooks:</info>");
                 $this->_queue->readWebhookQueue($ids);
@@ -151,10 +151,12 @@ class OutsideQueue extends Command
     }
 
     // Funcao para executar a funcao externamente, ex. pelo CRON ou funcoes externas (nao pelo console)
-    public function executeCron() {
-        $input = new ArrayInput([]); // Argumentos vazios
+    public function executeCron($params = [
+        'all' => true,
+    ]) {
+        $input = new ArrayInput([]); //Executa todas as funcoes
         $output = new ConsoleOutput(); // ou new NullOutput();
 
-        $this->execute($input, $output);
+        $this->execute($input, $output, true);
     }
 }

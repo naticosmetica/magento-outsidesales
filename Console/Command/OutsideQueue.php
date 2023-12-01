@@ -181,12 +181,8 @@ class OutsideQueue extends Command
                 }
             }
 
-            echo 'FOI';
-
         } catch (\Exception $e) {
             $output->writeln("<error>{$e->getMessage()}</error>");
-
-            echo 'ERROR - '.$e->getMessage();exit;
         }
     }
 

@@ -4,5 +4,8 @@
         <job name="nati_outside" instance="Nati\OutsideSales\Cron\OutsideSalesJobs" method="execute">
             <schedule>*/30 * * * *</schedule>
         </job>
+        <job name="nati_outside_tokens" instance="Nati\OutsideSales\Cron\OutsideTokensJobs" method="execute">
+            <schedule>0 * * * *</schedule>
+        </job>
     </group>
 </config>

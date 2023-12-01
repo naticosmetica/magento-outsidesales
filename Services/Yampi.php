@@ -125,10 +125,11 @@ class Yampi {
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'User-Token' => $this->getYampiAccess(),
-            'User-Secret-Key' => $this->getYampiAccessKey()
+            'User-Secret-Key' => $this->getYampiAccessKey(),
+            'X-HTTP-Method-Override' => 'PUT' // Especifica o método PUT
         ]);
 
-        $this->_httpClient->put($this->getYampiUrl() .'/orders/'. $order_id, $params);
+        $this->_httpClient->post($this->getYampiUrl() .'/orders/'. $order_id, $params);
 
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {

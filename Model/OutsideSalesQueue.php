@@ -485,8 +485,8 @@ class OutsideSalesQueue {
                 }
             }
             catch(\Exception $e) {
-                // throw new \Exception($e->getMessage());
-                $message = $e->getMessage();
+                throw new \Exception($e->getMessage());
+                // $message = $e->getMessage();
             }
 
             //Atualiza o status para error caso nao encontre nenhum caminho

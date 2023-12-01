@@ -15,6 +15,6 @@ class OutsideSalesJobs
 
     public function execute()
     {
-        $this->command->execute();
+        $this->command->executeCron();
     }
 }

@@ -192,6 +192,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
     
                 $installer->getConnection()->createTable($table);
             }
+
+            //Verifica se a coluna message já existe na tabela nati_webhook_queue, se nao existir cria
+            $connection = $installer->getConnection();
+            $tableName = $installer->getTable('nati_webhook_queue');
+            $columnName = 'message';
+            $columnExists = $connection->tableColumnExists($tableName, $columnName);
+            if (!$columnExists) {
+                $connection->addColumn(
+                    $tableName,
+                    $columnName,
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'length' => 255,
+                        'nullable' => true,
+                        'comment' => 'Message'
+                    ]
+                );
+            }
+            
         }
 
         $installer->endSetup();

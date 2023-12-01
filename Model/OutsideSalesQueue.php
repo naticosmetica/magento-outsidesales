@@ -452,15 +452,19 @@ class OutsideSalesQueue {
                 }
 
                 // Verifica se o provider é o frete rapido
+                $message = 'Provider não encontrado';
                 if($item['provider'] == 'frete_rapido') {
                     
                     //Consultar o Bling -> Pegar ID da venda (YAMPI)
+                    $message = 'Sem número de pedido retornado pelo frete rapido';
                     if(!empty($shipping->numero_pedido)) {
 
                         $order_bling = $this->_bling->getOrder($shipping->numero_pedido);
+                        $message = 'Não foi possível encontrar o pedido no Bling';
                         if(!empty($order_bling)) {
 
                             $order_yampi = $this->_yampi->getOrder($order_bling->numeroLoja, 'number');
+                            $message = 'Não foi possível encontrar o pedido no Yampi';
                             if(!empty($order_yampi)) {
 
                                 $order_status = $this->_yampi->queryStatus($shipping->codigo, 'frete_rapido');
@@ -482,10 +486,11 @@ class OutsideSalesQueue {
             }
             catch(\Exception $e) {
                 // throw new \Exception($e->getMessage());
+                $message = $e->getMessage();
             }
 
             //Atualiza o status para error caso nao encontre nenhum caminho
-            $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'error' WHERE id = ". $item['id'] ." LIMIT 1");
+            $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'error', message='". $message ."' WHERE id = ". $item['id'] ." LIMIT 1");
         }
     }
 }

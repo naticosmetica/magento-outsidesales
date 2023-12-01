@@ -95,4 +95,46 @@ class Yampi {
 
         return json_decode($this->_httpClient->getBody());
     }
+
+    public function orderByNumber($number_id)
+    {
+        $this->_httpClient->setHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'User-Token' => $this->getYampiAccess(),
+            'User-Secret-Key' => $this->getYampiAccessKey()
+        ]);
+
+        $this->_httpClient->get($this->getYampiUrl() .'/orders?number='. $number_id .'&include=items,customer,marketplace,status,shipping_address,transactions,seller,labels,services');
+
+        //Verifica se a consulta foi realizada com sucesso
+        if($this->_httpClient->getStatus() != 200) {
+            throw new \Exception('Não foi possível consultar a API da Yampi.');
+        }
+
+        $array = json_decode($this->_httpClient->getBody());
+
+        return (object) [
+            'data' => $array->data[0] ?? null
+        ];
+    }
+
+    public function updateOrder($order_id, $params = [])
+    {
+        $this->_httpClient->setHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'User-Token' => $this->getYampiAccess(),
+            'User-Secret-Key' => $this->getYampiAccessKey()
+        ]);
+
+        $this->_httpClient->put($this->getYampiUrl() .'/orders/'. $order_id, $params);
+
+        //Verifica se a consulta foi realizada com sucesso
+        if($this->_httpClient->getStatus() != 200) {
+            throw new \Exception('Não foi possível atualizar a API da Yampi.');
+        }
+
+        return json_decode($this->_httpClient->getBody());
+    }
 }

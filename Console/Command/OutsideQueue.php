@@ -59,6 +59,12 @@ class OutsideQueue extends Command
                 'Executa função que atualiza os status das listas já cadastradas'
             )
             ->addOption(
+                'webhook',
+                null,
+                InputOption::VALUE_NONE,
+                'Executa função que le a fila de webhooks'
+            )
+            ->addOption(
                 'date-init',
                 null,
                 InputOption::VALUE_REQUIRED,
@@ -128,6 +134,12 @@ class OutsideQueue extends Command
                 $output->writeln("<info>Iniciando atualizações - ". $period_init ." até ". $period_end ."</info>");
                 $this->_queue->changeStatusList($period_init, $period_end);
                 $output->writeln("<info>Lista atualizada com sucesso.</info>");
+            }
+
+            if($input->getOption('webhook') || $input->getOption('all') || !$input->getOptions()) {
+                $output->writeln("<info>Iniciando leitura da fila de webhooks:</info>");
+                $this->_queue->readWebhookQueue();
+                $output->writeln("<info>Lista de webhooks lida com sucesso.</info>");
             }
 
         } catch (\Exception $e) {

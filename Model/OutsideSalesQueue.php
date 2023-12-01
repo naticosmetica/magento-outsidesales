@@ -5,6 +5,7 @@ namespace Nati\OutsideSales\Model;
 use Magento\Framework\App\ObjectManager;
 use Nati\OutsideSales\Model\Ideris\IderisSales;
 use Nati\OutsideSales\Model\Yampi\YampiSales;
+use Nati\OutsideSales\Model\Bling\BlingSales;
 use Nati\OutsideSales\Model\Customer\Customer;
 use Nati\OutsideSales\Model\Marketplace\Marketplace;
 use Nati\OutsideSales\Model\Marketplace\Sales;
@@ -15,6 +16,7 @@ class OutsideSalesQueue {
     protected $_ideris;
     protected $_yampi;
     protected $_customer;
+    protected $_bling;
     protected $_marketplace;
     protected $_marketplaceSales;
     protected $_marketplaceItem;
@@ -26,6 +28,7 @@ class OutsideSalesQueue {
         IderisSales $ideris, 
         YampiSales $yampi, 
         Customer $customer,
+        BlingSales $bling,
         Marketplace $marketplace,
         Sales $marketplaceSales,
         Item $marketplaceItem
@@ -33,6 +36,7 @@ class OutsideSalesQueue {
         $this->_ideris = $ideris;
         $this->_yampi = $yampi;
         $this->_customer = $customer;
+        $this->_bling = $bling;
         $this->_marketplace = $marketplace;
         $this->_marketplaceSales = $marketplaceSales;
         $this->_marketplaceItem = $marketplaceItem;
@@ -412,6 +416,71 @@ class OutsideSalesQueue {
                     }
                 }
             }
+        }
+    }
+
+    public function readWebhookQueue()
+    {
+        // Consulta a tabela nati_webhook_queue com status generated e executa novamente
+        $tableWebhookQueue = $this->_resource->getTableName('nati_webhook_queue');
+
+        $result = $this->_connection->fetchAll("SELECT * FROM " . $tableWebhookQueue . " WHERE status IN ('processing', 'generated')");
+
+        // Verifica se existem registros para serem validados
+        if(count($result) == 0) {
+            throw new \Exception('Não existem webhooks para serem executados.');
+        }
+
+        // Se houver registros, cria um foreach para executar cada um
+        foreach($result as $item) {
+
+            $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'processing' WHERE id = ". $item['id'] ." LIMIT 1");
+
+            try {
+
+                // Decodifica o json
+                $shipping = json_decode($item['json']);
+
+                // Verifica se o json foi decodificado com sucesso
+                if(empty($shipping)) {
+                    throw new \Exception('Não foi possível decodificar o json.');
+                }
+
+                // Verifica se o provider é o frete rapido
+                if($item['provider'] == 'frete_rapido') {
+                    
+                    //Consultar o Bling -> Pegar ID da venda (YAMPI)
+                    if(!empty($shipping->numero_pedido)) {
+
+                        $order_bling = $this->_bling->getOrder($shipping->numero_pedido);
+                        if(!empty($order_bling)) {
+
+                            $order_yampi = $this->_yampi->getOrder($order_bling->numeroLoja, 'number');
+                            if(!empty($order_yampi)) {
+
+                                $order_status = $this->_yampi->queryStatus($shipping->codigo, 'frete_rapido');
+                                if(!empty($order_status)) {
+                                    $this->_yampi->updateOrder($order_yampi->data->id, [
+                                        'status_id' => $order_status,
+                                        'track_code' => $shipping->id_frete,
+                                        'track_url' => 'https://ondeestameupedido.com.br/'. $shipping->id_frete
+                                    ]);
+                                }
+
+                                // Atualiza como concluido e pula para o próximo
+                                $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'concluded' WHERE id = ". $item['id'] ." LIMIT 1");
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                // throw new \Exception($e->getMessage());
+            }
+
+            //Atualiza o status para error caso nao encontre nenhum caminho
+            $this->_connection->query("UPDATE " . $tableWebhookQueue . " SET status = 'error' WHERE id = ". $item['id'] ." LIMIT 1");
         }
     }
 }

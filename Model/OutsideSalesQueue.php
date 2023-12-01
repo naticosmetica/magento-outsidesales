@@ -469,7 +469,7 @@ class OutsideSalesQueue {
 
                                 $order_status = $this->_yampi->queryStatus($shipping->codigo, 'frete_rapido');
                                 if(!empty($order_status)) {
-                                    $this->_yampi->updateOrder($order_yampi->id, [
+                                    $retun = $this->_yampi->updateOrder($order_yampi->id, [
                                         'status_id' => $order_status,
                                         'track_code' => $shipping->id_frete,
                                         'track_url' => 'https://ondeestameupedido.com.br/'. $shipping->id_frete
@@ -485,8 +485,8 @@ class OutsideSalesQueue {
                 }
             }
             catch(\Exception $e) {
-                throw new \Exception($e->getMessage());
-                // $message = $e->getMessage();
+                // throw new \Exception($e->getMessage());
+                $message = $e->getMessage();
             }
 
             //Atualiza o status para error caso nao encontre nenhum caminho

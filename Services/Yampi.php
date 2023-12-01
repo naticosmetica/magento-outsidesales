@@ -129,7 +129,7 @@ class Yampi {
             'X-HTTP-Method-Override' => 'PUT' // Especifica o método PUT
         ]);
 
-        $this->_httpClient->post($this->getYampiUrl() .'/orders/'. $order_id, $params);
+        $this->_httpClient->post($this->getYampiUrl() .'/orders/'. $order_id, json_encode($params));
 
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {

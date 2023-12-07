@@ -71,7 +71,7 @@ class Customer {
         // Caso contrário, crie um novo cliente
         $customer = $this->_customerFactory->create();
         $customer->setFirstname($data['firstname'])
-                    ->setLastname($data['lastname'])
+                    ->setLastname($data['lastname'] ?? $data['firstname'])
                     ->setEmail($data['document'] . '_account@temporary.com.br')
                     ->setTaxvat($data['document'])
                     ->save();

@@ -237,7 +237,7 @@ class OutsideSalesQueue {
                 }
                 catch(\Exception $e) {
                     // Adiciona o erro e a linha em que o erro foi gerado
-                    $error[] = $e->getLine() .' - '. $e->getFile() .' - '.$e->getMessage().' -- ['. $order->compradorPrimeiroNome .'] ['. $order->compradorSobrenome .']';
+                    $error[] = $e->getLine() .' - '. $e->getFile() .' - '.$e->getMessage();
                 }
             }
             else {

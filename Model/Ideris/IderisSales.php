@@ -56,8 +56,8 @@ class IderisSales {
 
                 // Adiciona um sobrenome
                 if(empty($order->result[0]->compradorSobrenome)) {                    
-                    $name = explode(' ', $order->result[0]->compradorPrimeiroNome);
-                    if(count($name) > 0) {
+                    $name = explode(' ', trim($order->result[0]->compradorPrimeiroNome));
+                    if(count($name) > 1) {
                         $order->result[0]->compradorPrimeiroNome = $name[0];
                         unset($name[0]);
                         $order->result[0]->compradorSobrenome = implode(' ', $name);

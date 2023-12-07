@@ -53,6 +53,20 @@ class IderisSales {
         if($order_id != null) {
             $order = $this->_ideris->order($order_id);
             if(!empty($order->result)) {
+
+                // Adiciona um sobrenome
+                if(empty($order->result[0]->compradorSobrenome)) {                    
+                    $name = explode(' ', $order->result[0]->compradorPrimeiroNome);
+                    if(count($name) > 0) {
+                        $order->result[0]->compradorPrimeiroNome = $name[0];
+                        unset($name[0]);
+                        $order->result[0]->compradorSobrenome = implode(' ', $name);
+                    }
+                    else {
+                        $order->result[0]->compradorSobrenome = $order->result[0]->compradorPrimeiroNome;
+                    }
+                }
+
                 return $order->result[0];
             }
         }

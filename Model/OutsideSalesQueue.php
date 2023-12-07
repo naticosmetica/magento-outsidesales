@@ -169,7 +169,7 @@ class OutsideSalesQueue {
                     if(empty($customerId)) {
                         $customerId = $this->_customer->createCustomer([
                             'firstname' => $order->compradorPrimeiroNome,
-                            'lastname' => $order->compradorSobrenome ?? $order->compradorPrimeiroNome,
+                            'lastname' => $order->compradorSobrenome,
                             'document' => $order->compradorDocumento
                         ]);
                     }
@@ -182,7 +182,7 @@ class OutsideSalesQueue {
                     //Adiciona endereço ao cliente
                     $this->_customer->addAddressesToCustomer($customerId, [
                         'firstname' => $order->compradorPrimeiroNome,
-                        'lastname' => $order->compradorSobrenome ?? $order->compradorPrimeiroNome,
+                        'lastname' => $order->compradorSobrenome,
                         'postcode' => $order->enderecoEntregaCep,
                         'city' => $order->enderecoEntregaCidade,
                         'street' => $order->enderecoEntregaCompleto,

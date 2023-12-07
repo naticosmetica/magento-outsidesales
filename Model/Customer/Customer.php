@@ -71,7 +71,7 @@ class Customer {
         // Caso contrário, crie um novo cliente
         $customer = $this->_customerFactory->create();
         $customer->setFirstname($data['firstname'])
-                    ->setLastname($data['lastname'] ?? $data['firstname'])
+                    ->setLastname($data['lastname'])
                     ->setEmail($data['document'] . '_account@temporary.com.br')
                     ->setTaxvat($data['document'])
                     ->save();
@@ -105,7 +105,7 @@ class Customer {
             $address->setShouldIgnoreValidation(true);
             $address->setCustomerId($customer->getId())
                             ->setFirstname($data['firstname'])
-                            ->setLastname($data['lastname'] ?? $data['firstname'])
+                            ->setLastname($data['lastname'])
                             ->setPostcode($data['postcode'])
                             ->setCity($data['city'])
                             ->setStreet($data['street'])

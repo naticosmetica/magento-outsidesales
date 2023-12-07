@@ -169,7 +169,7 @@ class OutsideSalesQueue {
                     if(empty($customerId)) {
                         $customerId = $this->_customer->createCustomer([
                             'firstname' => $order->compradorPrimeiroNome,
-                            'lastname' => $order->compradorSobrenome,
+                            'lastname' => $order->compradorSobrenome ?? $order->compradorPrimeiroNome,
                             'document' => $order->compradorDocumento
                         ]);
                     }
@@ -182,7 +182,7 @@ class OutsideSalesQueue {
                     //Adiciona endereço ao cliente
                     $this->_customer->addAddressesToCustomer($customerId, [
                         'firstname' => $order->compradorPrimeiroNome,
-                        'lastname' => $order->compradorSobrenome,
+                        'lastname' => $order->compradorSobrenome ?? $order->compradorPrimeiroNome,
                         'postcode' => $order->enderecoEntregaCep,
                         'city' => $order->enderecoEntregaCidade,
                         'street' => $order->enderecoEntregaCompleto,
@@ -237,7 +237,7 @@ class OutsideSalesQueue {
                 }
                 catch(\Exception $e) {
                     // Adiciona o erro e a linha em que o erro foi gerado
-                    $error[] = $e->getLine() .' - '. $e->getFile() .' - '.$e->getMessage();
+                    $error[] = $e->getLine() .' - '. $e->getFile() .' - '.$e->getMessage().' -- ['. $order->compradorPrimeiroNome .'] ['. $order->compradorSobrenome .']';
                 }
             }
             else {

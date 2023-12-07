@@ -290,6 +290,9 @@ class OutsideSalesQueue {
 
                 $marketplace = $this->_marketplace->get($order->idContaMarketplace);
 
+                //Lista os possíveis formatos de estados de SP
+                $tax_zero = ['sp', 'sao paulo', 'são paulo', 'sao-paulo', 'sao_paulo'];
+
                 //Salva os dados do pedido em nati_mktplace_sales
                 $saleId = $this->_marketplaceSales->create([
                     'marketplace_id' => $marketplace['id'],
@@ -307,7 +310,7 @@ class OutsideSalesQueue {
                     'gateway_value' => $order->tarifaGateway ?? 0, //Valor que apenas a yampi irá trazer
                     'mkp_value' => $order->tarifaVenda,
                     'picking_value' => number_format($order->valorTotalComFrete * .01, 2, '.', ''), // Calcular (1% do valor total)
-                    'tax_value' => number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
+                    'tax_value' => (in_array(strtolower($order->enderecoEntregaEstado), $tax_zero)) ? 0 : number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
                 ]);
 
                 //Salva os items do pedido

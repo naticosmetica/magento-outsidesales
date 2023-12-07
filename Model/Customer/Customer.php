@@ -105,7 +105,7 @@ class Customer {
             $address->setShouldIgnoreValidation(true);
             $address->setCustomerId($customer->getId())
                             ->setFirstname($data['firstname'])
-                            ->setLastname($data['lastname'])
+                            ->setLastname($data['lastname'] ?? $data['firstname'])
                             ->setPostcode($data['postcode'])
                             ->setCity($data['city'])
                             ->setStreet($data['street'])

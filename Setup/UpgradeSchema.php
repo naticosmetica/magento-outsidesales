@@ -213,6 +213,84 @@ class UpgradeSchema implements UpgradeSchemaInterface
             
         }
 
-        $installer->endSetup();
+        // Adiciona tabela de investimento em mídia
+        if(version_compare($context->getVersion(), '1.2.0', '<')) {
+
+            if (!$installer->tableExists('nati_media_investment')) {
+                /*
+                *
+                * id: int(11) NOT NULL AUTO_INCREMENT
+                * marketplace_id: int(11) NOT NULL
+                * investment: decimal(12,4) NOT NULL
+                * date: date NOT NULL
+                * created_at: timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+                * updated_at: timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                */
+                $table = $installer->getConnection()->newTable(
+                    $installer->getTable('nati_media_investment')
+                )
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'identity' => true, 
+                        'nullable' => false, 
+                        'primary' => true, 
+                        'unsigned' => true
+                    ],
+                )
+                ->addColumn(
+                    'marketplace_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    255,
+                    [
+                        'nullable' => false
+                    ],
+                    'Marketplace ID'
+                )
+                ->addColumn(
+                    'investment',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                    '12,4',
+                    [
+                        'nullable' => false
+                    ],
+                    'Investimento'
+                )
+                ->addColumn(
+                    'date',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                    null,
+                    [
+                        'nullable' => false
+                    ],
+                    'Data'
+                )
+                ->addColumn(
+                    'created_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    [
+                        'nullable' => false,
+                        'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT
+                    ],
+                    'Criado em'
+                )
+                ->addColumn(
+                    'updated_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    [
+                        'nullable' => false,
+                        'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT_UPDATE
+                    ],
+                    'Atualizado em'
+                )
+                ->setComment('Tabela de investimento em mídia');
+
+                $installer->getConnection()->createTable($table);
+            }
+        }
     }
 }

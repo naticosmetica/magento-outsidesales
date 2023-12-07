@@ -83,15 +83,17 @@ class OutsideQueue extends Command
     protected function execute(InputInterface $input, OutputInterface $output, $executeCron = false)
     {
         // Pega as datas informadas no console
+        $date_init = 'now - 24hours';
         try {
-            $date_init = $input->getOption('date-init');
+            $date_init = $input->getOption('date-init') ?? $date_init;
         }
         catch (\Exception $e) {
             $date_init = 'now - 24hours';
         }
 
+        $date_end = 'now';
         try {
-            $date_end = $input->getOption('date-end');
+            $date_end = $input->getOption('date-end') ?? $date_end;
         }
         catch (\Exception $e) {
             $date_end = 'now';

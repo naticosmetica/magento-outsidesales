@@ -220,7 +220,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 /*
                 *
                 * id: int(11) NOT NULL AUTO_INCREMENT
-                * marketplace_id: int(11) NOT NULL
+                * provider: int(50) NOT VARCHAR
+                * category_id: int(11) NOT NULL
                 * investment: decimal(12,4) NOT NULL
                 * date: date NOT NULL
                 * created_at: timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -241,18 +242,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ],
                 )
                 ->addColumn(
-                    'marketplace_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                    255,
+                    'provider',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    50,
                     [
                         'nullable' => false
                     ],
-                    'Marketplace ID'
+                    'Plataforma'
+                )
+                ->addColumn(
+                    'category_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    11,
+                    [
+                        'nullable' => false
+                    ],
+                    'Categoria'
                 )
                 ->addColumn(
                     'investment',
                     \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
-                    '12,4',
+                    '12,2',
                     [
                         'nullable' => false
                     ],

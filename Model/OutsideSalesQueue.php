@@ -283,7 +283,7 @@ class OutsideSalesQueue {
                 }
                 elseif($item['provider'] == 'yampi') {
                     $order = $this->_yampi->getOrder($item['provider_id']);
-                    $shipping_cost = $order->tarifaEnvio;
+                    $shipping_cost = (empty($order->tarifaEnvio)) ? 0 : number_format($order->tarifaEnvio - $order->freteComprador, 2, '.', '');
                 }
 
                 $customerId = $this->_customer->getIdCustomerForDocument($order->compradorDocumento);

@@ -103,12 +103,12 @@ class YampiSales {
 
                     'codigo' => $data->id,
                     'status' => $data->status->data->name,
-                    'data' => str_replace(' ','T',substr($data->created_at->date,0,19)).'-03:00',
+                    'data' => str_replace(' ','T',substr($data->created_at->date,0,19)).'-00:00',
                     'numeroRastreio' => $shipping->id,
-                    'dataEntregue' => (!empty($data->date_delivery->date)) ? str_replace(' ','T',substr($data->date_delivery->date,0,19)).'-03:00' : '0000-00-00T00:00:00-03:00',
+                    'dataEntregue' => (!empty($data->date_delivery->date)) ? str_replace(' ','T',substr($data->date_delivery->date,0,19)).'-00:00' : '0000-00-00T00:00:00-00:00',
                     'tarifaEnvio' => $shipping->cost,
                     'freteComprador' => $data->value_shipment,
-                    'valorTotalComFrete' => $data->value_total,
+                    'valorTotalComFrete' => number_format($data->value_total - $data->value_shipment, 2, '.', ''), // REVER
                     'tarifaVenda' => number_format($data->value_total * .015, 2, '.', ''), //1.5% média passada pelo Daniel
                     'tarifaGateway' => number_format($data->value_total * .06, 2, '.', ''), //6% média passada pelo Daniel
                     'Pagamento' => [

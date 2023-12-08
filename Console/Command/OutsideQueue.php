@@ -118,8 +118,8 @@ class OutsideQueue extends Command
             if ($executeCron || $input->getOption('update') || $input->getOption('all') || !$input->getOptions()) {
 
                 // Define o periodo de atualização, porém, podemos atualizar para que se informe o período no console
-                $period_init = date('Y-m-d H:i:s-03:00', strtotime($date_init));
-                $period_end = date('Y-m-d H:i:s-03:00', strtotime($date_end));
+                $period_init = date('Y-m-d H:i:s-00:00', strtotime($date_init));
+                $period_end = date('Y-m-d H:i:s-00:00', strtotime($date_end));
 
                 $output->writeln("<info>Iniciando update - ". $period_init ." até ". $period_end ."</info>");
 
@@ -159,8 +159,8 @@ class OutsideQueue extends Command
             if ($executeCron || $input->getOption('change-status') || $input->getOption('all') || !$input->getOptions()) {
 
                 // Define o periodo de verificacao, porém, podemos atualizar para que se informe o período no console
-                $period_init = date('Y-m-d H:i:s-03:00', strtotime($date_init));
-                $period_end = date('Y-m-d H:i:s-03:00', strtotime($date_end));
+                $period_init = date('Y-m-d H:i:s-00:00', strtotime($date_init));
+                $period_end = date('Y-m-d H:i:s-00:00', strtotime($date_end));
 
                 $output->writeln("<info>Iniciando atualizações - ". $period_init ." até ". $period_end ."</info>");
                 try {

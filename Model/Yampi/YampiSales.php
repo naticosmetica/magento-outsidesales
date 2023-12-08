@@ -70,13 +70,15 @@ class YampiSales {
                 //Consulta frete rapido se houver ID de nota
                 $shipping = (object) [
                     'id' => null, 
-                    'cost' => null
+                    'cost' => null,
+                    'date' => null
                 ];
                 if(!empty($data->services->data[0]->bling->external_id)) {
                     try {
                         $freteRapido = $this->_freteRapido->getByOrder($data->services->data[0]->bling->external_id);
                         $shipping->id = $freteRapido->id_frete ?? null;
                         $shipping->cost = number_format($freteRapido->transportadora->valor_cotado, 2, '.', '');
+                        $shipping->date = $freteRapido->data_prevista_entrega ?? null;
                     }
                     catch(\Exception $e) {
                         // throw new \Exception(json_encode($e->getMessage()));
@@ -103,9 +105,9 @@ class YampiSales {
 
                     'codigo' => $data->id,
                     'status' => $data->status->data->name,
-                    'data' => str_replace(' ','T',substr($data->created_at->date,0,19)).'-00:00',
+                    'data' => substr($data->created_at->date,0,19),
                     'numeroRastreio' => $shipping->id,
-                    'dataEntregue' => (!empty($data->date_delivery->date)) ? str_replace(' ','T',substr($data->date_delivery->date,0,19)).'-00:00' : '0000-00-00T00:00:00-00:00',
+                    'dataEntregue' => (!empty($shipping->date)) ? substr($shipping->date,0,10) .' 00:00:00' : '0000-00-00 00:00:00',
                     'tarifaEnvio' => $shipping->cost,
                     'freteComprador' => $data->value_shipment,
                     'valorTotalComFrete' => number_format($data->value_total - $data->value_shipment, 2, '.', ''), // REVER

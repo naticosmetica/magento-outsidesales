@@ -284,12 +284,12 @@ class OutsideSalesQueue {
                 if($item['provider'] == 'ideris') {
                     $order = $this->_ideris->getOrder($item['provider_id']);
                     $shipping_cost = $order->tarifaEnvio;
-                    $tax_value = (in_array(strtolower($order->enderecoEntregaEstado), $tax_zero)) ? 0 : number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
+                    $tax_value = (in_array(strtolower($order->enderecoEntregaEstado), $tax_zero)) ? 0 : number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''); // Calcular (15,28% do valor total)
                 }
                 elseif($item['provider'] == 'yampi') {
                     $order = $this->_yampi->getOrder($item['provider_id']);
                     $shipping_cost = (empty($order->tarifaEnvio)) ? 0 : $order->tarifaEnvio;
-                    $tax_value = number_format($order->valorTotalComFrete * 0.0328, 2, '.', ''), // Calcular (3,28% do valor total)
+                    $tax_value = number_format($order->valorTotalComFrete * 0.0328, 2, '.', ''); // Calcular (3,28% do valor total)
                 }
 
                 $customerId = $this->_customer->getIdCustomerForDocument($order->compradorDocumento);

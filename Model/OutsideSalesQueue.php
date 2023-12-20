@@ -275,23 +275,26 @@ class OutsideSalesQueue {
                 // Atualiza o status para executando
                 $this->_connection->query("UPDATE " . $tableMkpQueue . " SET status = 'executing' WHERE id = ". $item['id'] ." LIMIT 1");
 
+                //Lista os possíveis formatos de estados de SP
+                $tax_zero = ['sp', 'sao paulo', 'são paulo', 'sao-paulo', 'sao_paulo'];
+
                 $order = null;
                 $shipping_cost = 0;
+                $tax_value = 0;
                 if($item['provider'] == 'ideris') {
                     $order = $this->_ideris->getOrder($item['provider_id']);
-                    $shipping_cost = number_format($order->tarifaEnvio - $order->freteComprador, 2, '.', '');
+                    $shipping_cost = $order->tarifaEnvio;
+                    $tax_value = (in_array(strtolower($order->enderecoEntregaEstado), $tax_zero)) ? 0 : number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
                 }
                 elseif($item['provider'] == 'yampi') {
                     $order = $this->_yampi->getOrder($item['provider_id']);
-                    $shipping_cost = (empty($order->tarifaEnvio)) ? 0 : number_format($order->tarifaEnvio - $order->freteComprador, 2, '.', '');
+                    $shipping_cost = (empty($order->tarifaEnvio)) ? 0 : $order->tarifaEnvio;
+                    $tax_value = number_format($order->valorTotalComFrete * 0.0328, 2, '.', ''), // Calcular (3,28% do valor total)
                 }
 
                 $customerId = $this->_customer->getIdCustomerForDocument($order->compradorDocumento);
 
                 $marketplace = $this->_marketplace->get($order->idContaMarketplace);
-
-                //Lista os possíveis formatos de estados de SP
-                $tax_zero = ['sp', 'sao paulo', 'são paulo', 'sao-paulo', 'sao_paulo'];
 
                 //Salva os dados do pedido em nati_mktplace_sales
                 $saleId = $this->_marketplaceSales->create([
@@ -310,7 +313,7 @@ class OutsideSalesQueue {
                     'gateway_value' => $order->tarifaGateway ?? 0, //Valor que apenas a yampi irá trazer
                     'mkp_value' => $order->tarifaVenda,
                     'picking_value' => number_format($order->valorTotalComFrete * .01, 2, '.', ''), // Calcular (1% do valor total)
-                    'tax_value' => (in_array(strtolower($order->enderecoEntregaEstado), $tax_zero)) ? 0 : number_format($order->valorTotalComFrete * 0.1528, 2, '.', ''), // Calcular (15,28% do valor total)
+                    'tax_value' => $tax_value
                 ]);
 
                 //Salva os items do pedido

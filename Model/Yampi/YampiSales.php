@@ -110,7 +110,7 @@ class YampiSales {
                     'dataEntregue' => (!empty($shipping->date)) ? substr($shipping->date,0,10) .' 00:00:00' : '0000-00-00 00:00:00',
                     'tarifaEnvio' => $shipping->cost,
                     'freteComprador' => $data->value_shipment,
-                    'valorTotalComFrete' => number_format($data->value_total - $data->value_shipment, 2, '.', ''), // REVER
+                    'valorTotalComFrete' => $data->value_total,
                     'tarifaVenda' => number_format($data->value_total * .015, 2, '.', ''), //1.5% média passada pelo Daniel
                     'tarifaGateway' => number_format($data->value_total * .06, 2, '.', ''), //6% média passada pelo Daniel
                     'Pagamento' => [

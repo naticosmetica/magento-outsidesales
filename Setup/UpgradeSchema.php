@@ -302,5 +302,95 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 $installer->getConnection()->createTable($table);
             }
         }
+
+        // Adiciona tabela de custo de frete
+        if(version_compare($context->getVersion(), '1.3.0', '<')) {
+
+            if (!$installer->tableExists('nati_shipping_coast')) {
+                /*
+                *
+                * id: int(11) NOT NULL AUTO_INCREMENT
+                * provider: int(50) NOT VARCHAR
+                * category_id: int(11) NOT NULL
+                * investment: decimal(12,4) NOT NULL
+                * date: date NOT NULL
+                * created_at: timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+                * updated_at: timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                */
+                $table = $installer->getConnection()->newTable(
+                    $installer->getTable('nati_shipping_coast')
+                )
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'identity' => true, 
+                        'nullable' => false, 
+                        'primary' => true, 
+                        'unsigned' => true
+                    ],
+                )
+                ->addColumn(
+                    'provider',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    50,
+                    [
+                        'nullable' => false
+                    ],
+                    'Plataforma'
+                )
+                ->addColumn(
+                    'total_value',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                    '12,2',
+                    [
+                        'nullable' => false
+                    ],
+                    'Investimento'
+                )
+                ->addColumn(
+                    'value',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DECIMAL,
+                    '12,2',
+                    [
+                        'nullable' => false
+                    ],
+                    'Investimento'
+                )
+                ->addColumn(
+                    'date',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                    null,
+                    [
+                        'nullable' => false
+                    ],
+                    'Data'
+                )
+                ->addColumn(
+                    'created_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    [
+                        'nullable' => false,
+                        'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT
+                    ],
+                    'Criado em'
+                )
+                ->addColumn(
+                    'updated_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    [
+                        'nullable' => false,
+                        'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT_UPDATE
+                    ],
+                    'Atualizado em'
+                )
+                ->setComment('Tabela de valores de Frete');
+
+                $installer->getConnection()->createTable($table);
+            }
+        }
     }
 }

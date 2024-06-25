@@ -47,8 +47,7 @@ class Ideris {
         ]);
 
         // Codifica os dados como JSON e os envia via POST
-        $jsonData = json_encode(['login_token' => $this->getIderisAccessKey()]);
-        $this->_httpClient->post($this->getIderisUrl() .'/Login', $jsonData);
+        $this->_httpClient->post($this->getIderisUrl() .'/login', $this->getIderisAccessKey());
 
         //Verifica se o token foi gerado com sucesso
         if($this->_httpClient->getStatus() != 200) {

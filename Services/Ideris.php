@@ -47,11 +47,12 @@ class Ideris {
         ]);
 
         // Codifica os dados como JSON e os envia via POST
-        $this->_httpClient->post($this->getIderisUrl() .'/login', $this->getIderisAccessKey());
+        $jsonData = json_encode($this->getIderisAccessKey());
+        $this->_httpClient->post($this->getIderisUrl() .'/login', $jsonData);
 
         //Verifica se o token foi gerado com sucesso
         if($this->_httpClient->getStatus() != 200) {
-            throw new \Exception('Não foi possível gerar o token de acesso a API da Ideris. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody() .' --- '. $this->getIderisUrl() .'/Login --- '. $jsonData);
+            throw new \Exception('Não foi possível gerar o token de acesso a API da Ideris. '. $this->_httpClient->getStatus() .' -> --- '. $this->getIderisUrl() .'/login --- '. $jsonData .' >>> '. $this->_httpClient->getBody());
         }
 
         return trim(str_replace('"','',$this->_httpClient->getBody()));
@@ -62,14 +63,14 @@ class Ideris {
         $this->_httpClient->setHeaders([
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'Authorization' => $this->token()
+            'Authorization' => 'Bearer ' . $this->token()
         ]);
 
-        $this->_httpClient->get($this->getIderisUrl() .'/ListaPedido?dataInicial'.$periodType.'='. urlencode($period_init) .'&dataFinal'.$periodType.'='. urlencode($period_end) .'&offset='. $offset .'&limit='. $limit);
+        $this->_httpClient->get($this->getIderisUrl() .'/order/search?startDate'.$periodType.'='. urlencode($period_init) .'&endDate'.$periodType.'='. urlencode($period_end) .'&offset='. $offset .'&limit='. $limit);
         
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {
-            throw new \Exception('Não foi possível consultar a API da Ideris. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody());
+            throw new \Exception('Não foi possível consultar a API da Ideris 123. '. $this->_httpClient->getStatus() .' - '. $this->_httpClient->getBody() .' - '. $this->token());
         }
 
         return json_decode($this->_httpClient->getBody());
@@ -80,14 +81,14 @@ class Ideris {
         $this->_httpClient->setHeaders([
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'Authorization' => $this->token()
+            'Authorization' => 'Bearer ' . $this->token()
         ]);
 
-        $this->_httpClient->get($this->getIderisUrl() .'/Pedido/'. $order_id);
+        $this->_httpClient->get($this->getIderisUrl() .'/order/'. $order_id);
 
         //Verifica se a consulta foi realizada com sucesso
         if($this->_httpClient->getStatus() != 200) {
-            throw new \Exception('Não foi possível consultar a API da Ideris.');
+            throw new \Exception('Não foi possível consultar a API da Ideris 321.');
         }
 
         return json_decode($this->_httpClient->getBody());
